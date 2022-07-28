@@ -1,44 +1,54 @@
 
+# 
+# args <- commandArgs(T)
+# set.seed(as.numeric(args[1]*1000))
+# job_id <- (as.numeric(args[1]))
+# message("job number ", job_id)
+# 
+
 set.seed(100)
 library(dplyr)
 library(tidyverse)
-library(TwoSampleMR)
+#library(TwoSampleMR)
 source('functions.R')
+source('setupmodels.R')
 
-reps = 1
+reps = 2
 
+#res_pcut = data.frame()
 results = data.frame()
 mvmrres = data.frame()
 res_ivw = data.frame()
 res_mregger = data.frame()
 res_wmedian = data.frame()
 res_wmode = data.frame()
+res_ivw.s = data.frame()
+res_mregger.s = data.frame()
+res_wmedian.s = data.frame()
+res_wmode.s = data.frame()
 results_all = NULL
+mvmrres <- NULL
 
-total_snps = 400            #SNPS for X1 and X2 combined
-pct = 0.4                   # proportion of snps for X2; no of SNPs for X3 matches the number for X2.
-nobs = 100000
-beta3 = 0
- 
-for (pcut in c(5e-4, 5e-6, 5e-8, 5e-12)) {
+
+for(model in c('A', 'B', 'C', 'D', 'E')){
+
+params <- setup(model)
+
+total_snps = params[1]      
+pct = params[2]         
+nobs = params[3]
+beta3 = params[4]
+effs1 = params[5]
+effs2 = params[6]
 
     for(j in 1:reps){
       
-      results[j,"sample size"] <- nobs
-      results[j,"pct_c"] <- pct
-      results[j,"pvalue"] <- pcut
       
       snps <- round((1-pct)*total_snps)
       snpsc <-round(pct*total_snps)
       
-      dat <- datagenA(snps, snpsc, nobs,0,0.4,beta3)
+      dat <- datagenA(snps, snpsc, nobs,0,0.4,beta3,effs1,effs2)
       #(no of snps, snps for confounding var, samplesize, beta1, beta2, beta3)
-      
-      ##############################
-      ##Observational confounded association
-      ##############################
-      
-      results[j,"obs_X1"] <- summary(lm(Y~X1,data = dat))$coefficients["X1","Estimate"]
 
       #############################
       ##Generate GWAS data 
@@ -51,92 +61,106 @@ for (pcut in c(5e-4, 5e-6, 5e-8, 5e-12)) {
       #####################################
       
       #select snps associated with the exposure
-  
+      res_pcut = NULL
+      for (pcut in c(5e-4, 5e-6, 5e-8, 5e-12)) {
+        
+        results[1,"model"] <- model
+        results[1,"sample size"] <- nobs
+        results[1,"pct_c"] <- pct
+        results[1,"pvalue"] <- pcut
+        
+        results[1,"obs_X1"] <- summary(lm(Y~X1,data = dat))$coefficients["X1","Estimate"]
+        
           MR_dat.X <- MR_dat[MR_dat$X1_p < pcut,]
-          results[j,"X1_totalR2"] <- sum(MR_dat.X$X1_r2)            #proportion of X1 explained by snps significantly associated with x1
-          results[j, "mr.nsnps"] <- length(MR_dat.X$X1_b)
+          results[1,"X1_totalR2"] <- sum(MR_dat.X$X1_r2)            #proportion of X1 explained by snps significantly associated with x1
+          results[1,"mr.nsnps"] <- length(MR_dat.X$X1_b)
           
           MR_dat.X$both <- as.numeric(MR_dat.X$X2_p < pcut)
-          results[j,"overlap"] <- sum(MR_dat.X$both)
-          results[j,"prop_X2"] <- results[j,"overlap"]/results[j,"mr.nsnps"]
+          results[1,"overlap"] <- sum(MR_dat.X$both)
+          results[1,"prop_X2"] <- results[1,"overlap"]/results[1,"mr.nsnps"]
          
           MR_dat.Xboth <- MR_dat.X[MR_dat.X$X2_p < pcut,]
-          results[j,"X1_R2_X2snps"] <- sum(MR_dat.Xboth$X1_r2)  #proportion of variation in X1 explained by SNPs associated with X2
+          results[1,"X1_R2_X2snps"] <- sum(MR_dat.Xboth$X1_r2)  #proportion of variation in X1 explained by SNPs associated with X2
           
           MR_dat.X2 <- MR_dat[MR_dat$X2_p < pcut,]
-          results[j,"X2_totalR2"] <- sum(MR_dat.X2$X2_r2)        #proportion of X2 explained by snps significantly associated with x2
+          results[1,"X2_totalR2"] <- sum(MR_dat.X2$X2_r2)        #proportion of X2 explained by snps significantly associated with x2
   
           
           #####################################
-          ##MR ESTIMATION - using MR base
+          ##MR ESTIMATION - using code from the MR base package
           #####################################
-          
-          #set up the data to use the MR package
-          
-          exposure_dat <- MR_dat.X[c("X1_b", "X1_se", "X1_p")] 
-          exposure_dat <- exposure_dat %>% 
-            rename("beta.exposure" = "X1_b") %>%
-            rename("se.exposure" = "X1_se") %>%
-            rename("pval.exposure" = "X1_p") %>%
-            mutate(SNP = row_number()) %>%
-            mutate(effect_allele.exposure = "C") %>%
-            mutate(other_allele.exposure = "G") %>%
-            mutate(eaf.exposure = 0.35) %>%
-            mutate(exposure = "X1") %>%
-            mutate(id.exposure = "X1")
-          
-          outcome_dat <- MR_dat.X[c("Y_b", "Y_se", "Y_p")] 
-          outcome_dat <- outcome_dat %>% 
-            rename("beta.outcome" = "Y_b") %>%
-            rename("se.outcome" = "Y_se") %>%
-            rename("pval.outcome" = "Y_p") %>%
-            mutate(SNP = row_number()) %>%
-            mutate(effect_allele.outcome = "C") %>%
-            mutate(other_allele.outcome = "G") %>%
-            mutate(eaf.outcome = 0.35) %>%
-            mutate(outcome = "Y") %>%
-            mutate(id.outcome = "Y")
-          
-           datforMR <- harmonise_data(exposure_dat = exposure_dat, outcome_dat = outcome_dat, action = 1)
-           mrres <- mr(datforMR, method_list = c("mr_egger_regression", "mr_ivw", "mr_weighted_mode", "mr_weighted_median"))  
+        
            
-           temp <- subset(mrres, mrres$method == "Inverse variance weighted")
-           res_ivw[j,"beta_ivw"] <- temp[, "b"]
-           res_ivw[j,"se_ivw"] <- temp[, "se"]
-           res_ivw[j,"pval_ivw"] <- temp[, "pval"]
+           res.ivw <- mr_ivw(MR_dat.X$X1_b, MR_dat.X$Y_b, MR_dat.X$X1_se, MR_dat.X$Y_se)
+           res_ivw[1,"beta_ivw"] <- res.ivw$b
+           res_ivw[1,"se_ivw"] <- res.ivw$se
+           res_ivw[1,"pval_ivw"] <- res.ivw$pval
            
-           temp <- subset(mrres, mrres$method == "MR Egger")
-           res_mregger[j,"beta_egger"] <- temp[, "b"]
-           res_mregger[j,"se_egger"] <- temp[, "se"]
-           res_mregger[j,"pval_egger"] <- temp[, "pval"]
+           res.egger <- mr_egger_regression(MR_dat.X$X1_b, MR_dat.X$Y_b, MR_dat.X$X1_se, MR_dat.X$Y_se)
+           res_mregger[1,"beta_egger"] <- res.egger$b
+           res_mregger[1,"se_egger"] <- res.egger$se
+           res_mregger[1,"pval_egger"] <- res.egger$pval
            
-           temp <- subset(mrres, mrres$method == "Weighted median")
-           res_wmedian[j,"beta_med"] <- temp[, "b"]
-           res_wmedian[j,"se_med"] <- temp[, "se"]
-           res_wmedian[j,"pval_med"] <- temp[, "pval"]
+           res.wmed <- mr_weighted_median(MR_dat.X$X1_b, MR_dat.X$Y_b, MR_dat.X$X1_se, MR_dat.X$Y_se)
+           res_wmedian[1,"beta_med"] <- res.wmed$b
+           res_wmedian[1,"se_med"] <- res.wmed$se
+           res_wmedian[1,"pval_med"] <- res.wmed$pval
            
-           temp <- subset(mrres, mrres$method == "Weighted mode")
-           res_wmode[j,"beta_mode"] <- temp[, "b"]
-           res_wmode[j,"se_mode"] <- temp[, "se"]
-           res_wmode[j,"pval_mode"] <- temp[, "pval"]
+           res.wmode <- mr_weighted_mode(MR_dat.X$X1_b, MR_dat.X$Y_b, MR_dat.X$X1_se, MR_dat.X$Y_se)
+           res_wmode[1,"beta_mode"] <- res.wmode$b
+           res_wmode[1,"se_mode"] <- res.wmode$se
+           res_wmode[1,"pval_mode"] <- res.wmode$pval
           
           #####################################
           ##MVMR ESTIMATION
           #####################################
           
-          mvmrres[j,] <- MVMR_conf(MR_dat)
+           mvmrres <- MVMR_conf(MR_dat)
+           
+           
+           ####Add in steiger filtering and rerun the univariable MR estimation
+           
+           MR_dat.S <- MR_dat.X
+           MR_dat.S$keep <- as.numeric(MR_dat.S$X2_p > MR_dat.S$X1_p)         #this is currently a very simple steiger filtering (between X1 and X2)- 
+                                                                          #want to extend to if there is a more substaintial difference
+           
+           MR_dat.S <- filter(MR_dat.S, MR_dat.S$keep==1)
+           
+           res.ivw <- mr_ivw(MR_dat.S$X1_b, MR_dat.S$Y_b, MR_dat.S$X1_se, MR_dat.S$Y_se)
+           res_ivw.s[1,"beta_ivw.s"] <- res.ivw$b
+           res_ivw.s[1,"se_ivw.s"] <- res.ivw$se
+           res_ivw.s[1,"pval_ivw.s"] <- res.ivw$pval
+           
+           res.egger <- mr_egger_regression(MR_dat.S$X1_b, MR_dat.S$Y_b, MR_dat.S$X1_se, MR_dat.S$Y_se)
+           res_mregger.s[1,"beta_egger.s"] <- res.egger$b
+           res_mregger.s[1,"se_egger.s"] <- res.egger$se
+           res_mregger.s[1,"pval_egger.s"] <- res.egger$pval
+           
+           res.wmed <- mr_weighted_median(MR_dat.S$X1_b, MR_dat.S$Y_b, MR_dat.S$X1_se, MR_dat.S$Y_se)
+           res_wmedian.s[1,"beta_med.s"] <- res.wmed$b
+           res_wmedian.s[1,"se_med.s"] <- res.wmed$se
+           res_wmedian.s[1,"pval_med.s"] <- res.wmed$pval
+           
+           res.wmode <- mr_weighted_mode(MR_dat.S$X1_b, MR_dat.S$Y_b, MR_dat.S$X1_se, MR_dat.S$Y_se)
+           res_wmode.s[1,"beta_mode.s"] <- res.wmode$b
+           res_wmode.s[1,"se_mode.s"] <- res.wmode$se
+           res_wmode.s[1,"pval_mode.s"] <- res.wmode$pval
+           
+           results_rep <- bind_cols(results, res_ivw, res_mregger, res_wmedian, res_wmode, mvmrres, 
+                                    res_ivw.s, res_mregger.s, res_wmedian.s, res_wmode.s, .name_repair = "universal")
+           res_pcut <- rbind(res_pcut, results_rep)
+           
       
     }
   #combine all the results so that the different values of the cut off can be combined into the same dataset.
 
-  results_rep <- bind_cols(results, res_ivw, res_mregger, res_wmedian, res_wmode, .name_repair = "universal")
-
-  results_all <- rbind(results_all, results_rep)
+  results_all <- rbind(results_all, res_pcut)
   
     }
-    
+}
 
 results_all
 #save(results_all, file="sim_out.Rda")
-
-  
+# 
+# message("filesave", sprintf("results_%s.Rda", job_id))
+# save(results_all, file=sprintf("results_%s.Rda", job_id))

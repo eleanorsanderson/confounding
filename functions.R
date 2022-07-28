@@ -1,5 +1,5 @@
 
-datagenA <- function(nsnps,snpsc,ss,beta1,beta2,beta3){
+datagenA <- function(nsnps,snpsc,ss,beta1,beta2,beta3,effs1,effs2){
   
   af = 0.4 
   n=2*ss
@@ -11,9 +11,9 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,beta3){
   v_x2 <- rnorm(n,0,1.5)
   v_x3 <- rnorm(n,0,1.5)
   
-  effs_x1 <- abs(rnorm(nsnps,0,0.03))
-  effs_x2 <- abs(rnorm(snpsc,0,0.03))
-  effs_x3 <- abs(rnorm(snpsc,0,0.03))
+  effs_x1 <- abs(rnorm(nsnps,0,0.04))
+  effs_x2 <- abs(rnorm(snpsc,0,0.04))
+  effs_x3 <- abs(rnorm(snpsc,0,0.04))
   
   df <- data.frame(cbind(G, G2, G3))
   df <- df %>% rename_at(vars(starts_with("X")), 
@@ -210,6 +210,17 @@ weighted_median_bootstrap <- function(b_exp, b_out, se_exp, se_out, weights, nbo
   return(sd(med))
 }
 
+weighted_median <- function(b_iv, weights)
+{
+  betaIV.order <- b_iv[order(b_iv)]
+  weights.order <- weights[order(b_iv)]
+  weights.sum <- cumsum(weights.order)-0.5*weights.order
+  weights.sum <- weights.sum/sum(weights.order)
+  below <- max(which(weights.sum<0.5))
+  b = betaIV.order[below] + (betaIV.order[below+1]-betaIV.order[below])*
+    (0.5-weights.sum[below])/(weights.sum[below+1]-weights.sum[below])
+  return(b)
+}
 
 
 mr_mode <- function(dat, parameters=default_parameters(), mode_method="all")
