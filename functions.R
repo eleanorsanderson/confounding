@@ -1,5 +1,5 @@
 
-datagenA <- function(nsnps,snpsc,ss,beta1,beta2,beta3,effs1,effs2){
+datagenA <- function(nsnps,snpsc,ss,beta1,beta2,beta3,gamma31){
   
   af = 0.4 
   n=2*ss
@@ -21,7 +21,7 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,beta3,effs1,effs2){
   
   df[,"X2"] <- G2[,]%*%effs_x2 + v_x2
   df[,"X3"] <- G3[,]%*%effs_x3 + v_x3
-  df[,"X1"] <- G[,]%*%effs_x1 + + 0.5*df[,"X2"] + 0.25*df[,"X3"] + v_x1
+  df[,"X1"] <- G[,]%*%effs_x1 + + 0.5*df[,"X2"] + gamma31*df[,"X3"] + v_x1
   df[,"Y"] <- beta1*df[,"X1"] + beta2*df[,"X2"] + beta3*df[,"X3"] + rnorm(n,0,1)  
   
   data <- cbind.data.frame(df)
@@ -40,13 +40,13 @@ datagenB <- function(nsnps,ss,beta1,beta2){
   v_x1 <- rnorm(n,0,1)
   v_x2 <- rnorm(n,0,1)
 
-  effs_u <- abs(rnorm(snpsc,0,0.02))
+  effs_u <- abs(rnorm(nsnps,0,0.04))
   
   df <- data.frame(cbind(G))
   df <- df %>% rename_at(vars(starts_with("X")), 
                          funs(str_replace(., "X", "G")))
   
-  df[,"uc"] <- g[,]%*%effs_u + v_u
+  df[,"uc"] <- G[,]%*%effs_u + v_u
   df[,"X2"] <- df[,"uc"] + v_x2
   df[,"X1"] <- df[,"uc"] + v_x1
   df[,"Y"] <- beta1*df[,"X1"] + beta2*df[,"X2"] + rnorm(n,0,1)  

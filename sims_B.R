@@ -28,21 +28,18 @@ results_all = NULL
 mvmrres <- NULL
 
 
-for(model in c('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')){
+for(beta1 in c(0, 0.5)){
+  for(beta2 in c(0, 0.5)){
 
-params <- setup(model)
-
-snps = params[1]      
-snpsc = params[2]         
-nobs = params[3]
-beta3 = params[4]
-gamma31 = params[5]
+snps = 400
+nobs = 100000
+snpsc = 0
 
     for(j in 1:reps){
       
       
-      dat <- datagenA(snps, snpsc, nobs,0,0.4,beta3,gamma31)
-      #(no of snps, snps for confounding var, samplesize, beta1, beta2, beta3)
+      dat <- datagenB(snps, nobs, beta1, beta2)
+      
 
       #############################
       ##Generate GWAS data 
@@ -58,11 +55,13 @@ gamma31 = params[5]
       res_pcut = NULL
       for (pcut in c(5e-4, 5e-6, 5e-8, 5e-12)) {
         
-        results[1,"model"] <- model
+        
         results[1,"sample size"] <- nobs
-        results[1,"snps_x"] <- snps
-        results[1,"snps_c"] <- snpsc
+        results[1,"snps"] <- snps
+      
         results[1,"pvalue"] <- pcut
+        results[1,"beta1"] <- beta1
+        results[1,"beta2"] <- beta2
         
         results[1,"obs_X1"] <- summary(lm(Y~X1,data = dat))$coefficients["X1","Estimate"]
         
@@ -152,7 +151,8 @@ gamma31 = params[5]
   
     }
 }
+}
 
 results_all
 
-save(results_all, file=sprintf("results_%s.Rda", job_id))
+save(results_all, file=sprintf("resultsB_%s.Rda", job_id))
