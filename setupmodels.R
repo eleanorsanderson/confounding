@@ -42,8 +42,8 @@ gamma31 = 0
   
   
   if(k=='E'){
-    snps = 1       #no of SNPs for X1
-    snpsc = 399         #No of SNPs for X2/X3               
+    snps = 10       #no of SNPs for X1
+    snpsc = 390         #No of SNPs for X2/X3               
     nobs = 100000
     beta3 = 0
     gamma31 = 0
