@@ -21,20 +21,20 @@ library(ggplot2)
 
 \section{Model A}
 
-```{r, include=FLASE}
-load('results_A.Rda')
+```{r}
+load('results_confA.Rda')
 
 ```
 
 Description of parameters for model A 
 
 \textit{
-total_snps = 400            #SNPS for X1 and X2 combined
-pct = 0.5                   # proportion of snps for X2; no of SNPs for X3 matches the number for X2.
+snps = 200       no of SNPs for X1
+snpsc = 200         No of SNPs for X2/X3
 nobs = 100000
 beta3 = 0
-effs1 = 0.03
-effs2 = 0.03}
+gamma31 = 0
+}
 
 \subsection{Generate figure A.1}
 
@@ -44,8 +44,6 @@ resa_mean <- res_a %>%
   select(-model) %>%
   group_by(pvalue) %>%
   summarise_all(mean)
-
-#resa_mean$pvalue <- as.factor(resa_mean$pvalue)
 
 resa_fig1 <- resa_mean %>%
   select(c(pvalue, beta_ivw, se_ivw)) 
@@ -76,16 +74,18 @@ resa_mvmr$Estimator <- "MVMR"
 
 
 resa_fig1 <- bind_rows(resa_fig1, resa_egger, resa_med, resa_mode, resa_mvmr)
+resa_fig1$Estimator <- as.factor(resa_fig1$Estimator)
+resa_fig1$Estimator <- factor(resa_fig1$Estimator, levels = c("IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 
-
-plot1 <- ggplot(resa_fig1, aes(x=-log10(pvalue))) +
+plot1 <- ggplot(resa_fig1, aes(x=log10(pvalue))) +
   geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+  ylim(-0.4, 0.2) +
   scale_colour_brewer(palette = "Set1") +
-   theme(legend.position = "right") +
-  labs(x = "Pvalue (-log10)", y = "Effect estimate", title ="MR Effect estimates for Model A", subtitle = "SNPs predict exposure and confounder equally strongly", caption = "Add a caption below plot") 
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
 
 plot1
-
+ggsave("plotconfA1.pdf", width = 6.5, height = 5)
 
 ```
 
@@ -119,31 +119,33 @@ resa_mode$Estimator <- "W. Mode"
 resa_fig2 <- bind_rows(resa_fig2, resa_egger, resa_med, resa_mode)
 
 
-plot1 <- ggplot(resa_fig2, aes(x=-log10(pvalue))) +
+plot1 <- ggplot(resa_fig2, aes(x=log10(pvalue))) +
   geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+   ylim(-0.4, 0.2) +
   scale_colour_brewer(palette = "Set1") +
-   theme(legend.position = "right") +
-  labs(x = "Pvalue (-log10)", y = "Effect estimate", title ="MR Effect estimates for Model A", subtitle = "SNPs predict exposure and confounder equally strongly, 'Steiger filtering' applied", caption = "Add a caption below plot") 
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
 
 plot1
+ggsave("plotconfA2.pdf")
 
 ```
 \section{Model B}
 
-```{r, include=FLASE}
-load('results_B.Rda')
+```{r}
+load('results_confB.Rda')
 
 ```
 
 Description of parameters for model B 
 
-\textit{
-  total_snps = 400            #SNPS for X1 and X2 combined
-    pct = 0.75                   # proportion of snps for X2; no of SNPs for X3 matches the number for X2.
+\textit{   
+    snps = 150       no of SNPs for X1
+    snpsc = 250         No of SNPs for X2/X3
     nobs = 100000
     beta3 = 0
-    effs1 = 0.01
-    effs2 = 0.05}
+    gamma31 = 0
+}
     
 \subsection{Plot the distribution of the estimated parameters}
 
@@ -198,16 +200,17 @@ resb_mvmr$Estimator <- "MVMR"
 
 
 resb_fig1 <- bind_rows(resb_fig1, resb_egger, resb_med, resb_mode, resb_mvmr)
+resb_fig1$Estimator <- as.factor(resb_fig1$Estimator)
+resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 
-
-plot1 <- ggplot(resb_fig1, aes(x=-log10(pvalue))) +
+plot1 <- ggplot(resb_fig1, aes(x=log10(pvalue))) +
   geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
   scale_colour_brewer(palette = "Set1") +
-   theme(legend.position = "right") +
-  labs(x = "Pvalue (-log10)", y = "Effect estimate", title ="MR Effect estimates for Model B", subtitle = "More SNPs associated with confounder than exposure", caption = "Add a caption below plot") 
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
 
 plot1
-
+ggsave("plotconfB1.pdf")
 
 ```
 
@@ -242,33 +245,35 @@ resb_mode$Estimator <- "W. Mode"
 resb_fig2 <- bind_rows(resb_fig2, resb_egger, resb_med, resb_mode)
 
 
-plot1 <- ggplot(resb_fig2, aes(x=-log10(pvalue))) +
+plot1 <- ggplot(resb_fig2, aes(x=log10(pvalue))) +
   geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
   scale_colour_brewer(palette = "Set1") +
    theme(legend.position = "right") +
-  labs(x = "Pvalue (-log10)", y = "Effect estimate", title ="MR Effect estimates for Model B", subtitle = "More SNPs associated with confounder than exposure, 'Steiger filtering' applied", caption = "Add a caption below plot") 
+   scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
 
 plot1
+ggsave("plotconfB2.pdf")
 
 ```
 
 
 \section{Model C}
 
-```{r, include=FLASE}
-load('results_C.Rda')
+```{r}
+load('results_confC.Rda')
 
 ```
 
 Description of parameters for model C 
 
 \textit{
-   total_snps = 400            #SNPS for X1 and X2 combined
-    pct = 0.5                   # proportion of snps for X2; no of SNPs for X3 matches the number for X2.
+     snps = 100       no of SNPs for X1
+    snpsc = 300       No of SNPs for X2/X3
     nobs = 100000
-    beta3 = 0.25
-    effs1 = 0.03
-    effs2 = 0.03}
+    beta3 = 0
+    gamma31 = 0}
     
 \subsection{Generate figure C.1}
 
@@ -309,14 +314,500 @@ resc_mvmr$Estimator <- "MVMR"
 
 
 resc_fig1 <- bind_rows(resc_fig1, resc_egger, resc_med, resc_mode, resc_mvmr)
+resc_fig1$Estimator <- as.factor(resc_fig1$Estimator)
+resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 
-plot1 <- ggplot(resc_fig1, aes(x=-log10(pvalue))) +
+plot1 <- ggplot(resc_fig1, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+    scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
+
+plot1
+ggsave("plotconfC1.pdf")
+
+```
+
+\section{Model D}
+
+```{r}
+load('results_confD.Rda')
+
+```
+
+Description of parameters for model D 
+
+\textit{
+snps = 50       no of SNPs for X1
+snpsc = 350         No of SNPs for X2/X3
+nobs = 100000
+beta3 = 0
+gamma31 = 0
+}
+
+\subsection{Generate figure D.1}
+
+```{r}
+
+resd_mean <- res_d %>%
+  select(-model) %>%
+  group_by(pvalue) %>%
+  summarise_all(mean)
+
+resd_fig1 <- resd_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw)) 
+
+colnames(resd_fig1) <- c('pvalue', 'beta', 'se')
+resd_fig1$Estimator <- "IVW"
+
+
+resd_egger <- resd_mean %>%
+  select(c(pvalue, beta_egger, se_egger)) 
+colnames(resd_egger) <- c('pvalue', 'beta', 'se')
+resd_egger$Estimator <- "MR Egger"
+
+resd_med <- resd_mean %>%
+  select(c(pvalue, beta_med, se_med)) 
+colnames(resd_med) <- c('pvalue', 'beta', 'se')
+resd_med$Estimator <- "W. Median"
+
+resd_mode <- resd_mean %>%
+  select(c(pvalue, beta_mode, se_mode)) 
+colnames(resd_mode) <- c('pvalue', 'beta', 'se')
+resd_mode$Estimator <- "W. Mode"
+
+resd_mvmr <- resd_mean %>%
+  select(c(pvalue, mvmr.X1_effect, mvmr.X1_se)) 
+colnames(resd_mvmr) <- c('pvalue', 'beta', 'se')
+resd_mvmr$Estimator <- "MVMR"
+
+
+resd_fig1 <- bind_rows(resd_fig1, resd_egger, resd_med, resd_mode, resd_mvmr)
+resd_fig1$Estimator <- as.factor(resd_fig1$Estimator)
+resd_fig1$Estimator <- factor(resd_fig1$Estimator, levels = c("IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+
+plot1 <- ggplot(resd_fig1, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+   scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
+
+plot1
+ggsave("plotconfD1.pdf")
+
+```
+
+\section{Model  E}
+
+```{r}
+load('results_confE.Rda')
+
+```
+
+Description of parameters for model E 
+
+\textit{
+     snps = 10       no of SNPs for X1
+    snpsc = 390       No of SNPs for X2/X3
+    nobs = 100000
+    beta3 = 0
+    gamma31 = 0}
+    
+\subsection{Generate figure E.1}
+
+```{r}
+
+rese_mean <- res_e %>%
+  select(-model) %>%
+  group_by(pvalue) %>%
+  summarise_all(mean)
+
+
+rese_fig1 <- rese_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw)) 
+
+colnames(rese_fig1) <- c('pvalue', 'beta', 'se')
+rese_fig1$Estimator <- "IVW"
+
+
+rese_egger <- rese_mean %>%
+  select(c(pvalue, beta_egger, se_egger)) 
+colnames(rese_egger) <- c('pvalue', 'beta', 'se')
+rese_egger$Estimator <- "MR Egger"
+
+rese_med <- rese_mean %>%
+  select(c(pvalue, beta_med, se_med)) 
+colnames(rese_med) <- c('pvalue', 'beta', 'se')
+rese_med$Estimator <- "W. Median"
+
+rese_mode <- rese_mean %>%
+  select(c(pvalue, beta_mode, se_mode)) 
+colnames(rese_mode) <- c('pvalue', 'beta', 'se')
+rese_mode$Estimator <- "W. Mode"
+
+rese_mvmr <- rese_mean %>%
+  select(c(pvalue, mvmr.X1_effect, mvmr.X1_se)) 
+colnames(rese_mvmr) <- c('pvalue', 'beta', 'se')
+rese_mvmr$Estimator <- "MVMR"
+
+
+rese_fig1 <- bind_rows(rese_fig1, rese_egger, rese_med, rese_mode, rese_mvmr)
+rese_fig1$Estimator <- as.factor(rese_fig1$Estimator)
+rese_fig1$Estimator <- factor(rese_fig1$Estimator, levels = c("IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+
+plot1 <- ggplot(rese_fig1, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+   ylim(-0.8, 0.8) +
+    scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
+
+plot1
+ggsave("plotconfE1.pdf", width = 6.5, height = 5)
+
+
+```
+
+\subsection{Generate figure E.2}
+
+```{r}
+
+rese_mean <- res_e %>%
+  select(-model) %>%
+  group_by(pvalue) %>%
+  summarise_all(mean, na.rm = TRUE)
+
+
+rese_fig1 <- rese_mean %>%
+  select(c(pvalue, beta_ivw.s, se_ivw.s)) 
+
+colnames(rese_fig1) <- c('pvalue', 'beta', 'se')
+rese_fig1$Estimator <- "IVW"
+
+
+rese_egger <- rese_mean %>%
+  select(c(pvalue, beta_egger.s, se_egger.s)) 
+colnames(rese_egger) <- c('pvalue', 'beta', 'se')
+rese_egger$Estimator <- "MR Egger"
+
+rese_med <- rese_mean %>%
+  select(c(pvalue, beta_med.s, se_med.s)) 
+colnames(rese_med) <- c('pvalue', 'beta', 'se')
+rese_med$Estimator <- "W. Median"
+
+rese_mode <- rese_mean %>%
+  select(c(pvalue, beta_mode.s, se_mode.s)) 
+colnames(rese_mode) <- c('pvalue', 'beta', 'se')
+rese_mode$Estimator <- "W. Mode"
+
+
+
+rese_fig2 <- bind_rows(rese_fig1, rese_egger, rese_med, rese_mode)
+
+plot1 <- ggplot(rese_fig2, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+   ylim(-0.8, 0.8) +
+   scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure")
+
+plot1
+ggsave("plotconfE2.pdf", width = 6.5, height = 5)
+
+
+```
+
+Calculating the number of repetitions used for each of the estimators in the plot above
+
+```{r}
+
+res_eforna <- res_e %>% 
+  select(pvalue, beta_ivw.s, beta_egger.s, beta_mode.s, beta_med.s)
+
+na04 <- colSums(is.na(subset(res_eforna, pvalue==5e-04))) 
+na06 <- colSums(is.na(subset(res_eforna, pvalue==5e-06))) 
+na08 <- colSums(is.na(subset(res_eforna, pvalue==5e-08))) 
+na12 <- colSums(is.na(subset(res_eforna, pvalue==5e-12))) 
+
+
+````
+
+Pvalue 5e-04
+```{r}
+na04
+```
+Pvalue 5e-06
+```{r}
+na06
+```
+Pvalue 5e-08
+```{r}
+na08
+```
+Pvalue 5e-12
+```{r}
+na12
+```
+
+\section{Model  F}
+
+```{r}
+load('results_confF.Rda')
+
+```
+
+Description of parameters for model F 
+
+\textit{
+     snps = 200       no of SNPs for X1
+    snpsc = 200       No of SNPs for X2/X3
+    nobs = 100000
+    beta3 = 0.25
+    gamma31 = 0.25}
+    
+\subsection{Generate figure F.1}
+
+```{r}
+
+resf_mean <- res_f %>%
+  select(-model) %>%
+  group_by(pvalue) %>%
+  summarise_all(mean)
+
+
+resf_fig1 <- resf_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw)) 
+
+colnames(resf_fig1) <- c('pvalue', 'beta', 'se')
+resf_fig1$Estimator <- "IVW"
+
+
+resf_egger <- resf_mean %>%
+  select(c(pvalue, beta_egger, se_egger)) 
+colnames(resf_egger) <- c('pvalue', 'beta', 'se')
+resf_egger$Estimator <- "MR Egger"
+
+resf_med <- resf_mean %>%
+  select(c(pvalue, beta_med, se_med)) 
+colnames(resf_med) <- c('pvalue', 'beta', 'se')
+resf_med$Estimator <- "W. Median"
+
+resf_mode <- resf_mean %>%
+  select(c(pvalue, beta_mode, se_mode)) 
+colnames(resf_mode) <- c('pvalue', 'beta', 'se')
+resf_mode$Estimator <- "W. Mode"
+
+resf_mvmr <- resf_mean %>%
+  select(c(pvalue, mvmr.X1_effect, mvmr.X1_se)) 
+colnames(resf_mvmr) <- c('pvalue', 'beta', 'se')
+resf_mvmr$Estimator <- "MVMR"
+
+
+resf_fig1 <- bind_rows(resf_fig1, resf_egger, resf_med, resf_mode, resf_mvmr)
+resf_fig1$Estimator <- as.factor(resf_fig1$Estimator)
+resf_fig1$Estimator <- factor(resf_fig1$Estimator, levels = c("IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+
+plot1 <- ggplot(resf_fig1, aes(x=log10(pvalue))) +
   geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
   scale_colour_brewer(palette = "Set1") +
    theme(legend.position = "right") +
-  labs(x = "Pvalue (-log10)", y = "Effect estimate", title ="MR Effect estimates for Model C", subtitle = "SNPs equally associated with each exposure, additional unobserved confounder", caption = "Add a caption below plot") 
+  labs(x = "Pvalue (log10)", y = "Effect estimate", title ="MR Effect estimates for confounded model, two confounders", subtitle = "66% of SNPs associated with confounders, one adjusted for in MVMR", 
+  caption = "Equal distribution of instrument strength across exposure and confounder 
+       Points futher right represent lower p-value for selection; equivalent to larger sample size
+       P-values; 5e-12, 5e-8, 5e-6, 5e-4") 
 
 plot1
+ggsave("plotconfF1.pdf")
+
+
+```
+
+\section{Misspecification}
+
+```{r}
+load('results_misspec.Rda')
+
+misspec_a <- resB %>%
+  filter(beta1==0) %>%
+  filter(beta2==0)
+
+misspec_b <- resB %>%
+  filter(beta1==0.5) %>%
+  filter(beta2==0)
+
+misspec_c <- resB %>%
+  filter(beta1==0) %>%
+  filter(beta2==0.5)
+
+misspec_d <- resB %>%
+  filter(beta1==0.5) %>%
+  filter(beta2==0.5)
+
+```
+
+
+    
+\subsection{Generate figure M1}
+
+```{r}
+
+misspec_a_mean <- misspec_a %>%
+  group_by(pvalue) %>%
+  summarise_all(mean)
+
+
+misspec_a_fig1 <- misspec_a_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw)) 
+
+colnames(misspec_a_fig1) <- c('pvalue', 'beta', 'se')
+misspec_a_fig1$Estimator <- "IVW"
+
+
+misspec_a_egger <- misspec_a_mean %>%
+  select(c(pvalue, beta_egger, se_egger)) 
+colnames(misspec_a_egger) <- c('pvalue', 'beta', 'se')
+misspec_a_egger$Estimator <- "MR Egger"
+
+misspec_a_med <- misspec_a_mean %>%
+  select(c(pvalue, beta_med, se_med)) 
+colnames(misspec_a_med) <- c('pvalue', 'beta', 'se')
+misspec_a_med$Estimator <- "W. Median"
+
+misspec_a_mode <- misspec_a_mean %>%
+  select(c(pvalue, beta_mode, se_mode)) 
+colnames(misspec_a_mode) <- c('pvalue', 'beta', 'se')
+misspec_a_mode$Estimator <- "W. Mode"
+
+misspec_a_mvmr <- misspec_a_mean %>%
+  select(c(pvalue, mvmr.X1_effect, mvmr.X1_se)) 
+colnames(misspec_a_mvmr) <- c('pvalue', 'beta', 'se')
+misspec_a_mvmr$Estimator <- "MVMR"
+
+
+misspec_a_fig1 <- bind_rows(misspec_a_fig1, misspec_a_egger, misspec_a_med, misspec_a_mode, misspec_a_mvmr)
+
+plot1 <- ggplot(misspec_a_fig1, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+  scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "right") +
+  labs(x = "Pvalue (log10)", y = "Effect estimate", title ="MR Effect estimates for misspecified model", subtitle = "No causal effect of exposure on outcome",
+  caption = "SNPs associated with unobserved upstream trait
+       Points futher right represent lower p-value for selection; equivalent to larger sample size
+       P-values; 5e-12, 5e-8, 5e-6, 5e-4") 
+
+plot1
+ggsave("plotmisspec_a.pdf")
+
+
+```
+
+
+    
+\subsection{Generate figure M3}
+
+```{r}
+
+misspec_c_mean <- misspec_c %>%
+  group_by(pvalue) %>%
+  summarise_all(mean)
+
+
+misspec_c_fig1 <- misspec_c_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw)) 
+
+colnames(misspec_c_fig1) <- c('pvalue', 'beta', 'se')
+misspec_c_fig1$Estimator <- "IVW"
+
+
+misspec_c_egger <- misspec_c_mean %>%
+  select(c(pvalue, beta_egger, se_egger)) 
+colnames(misspec_c_egger) <- c('pvalue', 'beta', 'se')
+misspec_c_egger$Estimator <- "MR Egger"
+
+misspec_c_med <- misspec_c_mean %>%
+  select(c(pvalue, beta_med, se_med)) 
+colnames(misspec_c_med) <- c('pvalue', 'beta', 'se')
+misspec_c_med$Estimator <- "W. Median"
+
+misspec_c_mode <- misspec_c_mean %>%
+  select(c(pvalue, beta_mode, se_mode)) 
+colnames(misspec_c_mode) <- c('pvalue', 'beta', 'se')
+misspec_c_mode$Estimator <- "W. Mode"
+
+misspec_c_mvmr <- misspec_c_mean %>%
+  select(c(pvalue, mvmr.X1_effect, mvmr.X1_se)) 
+colnames(misspec_c_mvmr) <- c('pvalue', 'beta', 'se')
+misspec_c_mvmr$Estimator <- "MVMR"
+
+
+misspec_c_fig1 <- bind_rows(misspec_c_fig1, misspec_c_egger, misspec_c_med, misspec_c_mode, misspec_c_mvmr)
+
+plot1 <- ggplot(misspec_c_fig1, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+  scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  ylim(0,0.6) +
+  labs(x = "Pvalue (log10)", y = "Estimated effect of exposure") 
+
+plot1
+ggsave("plotmisspec_c.pdf", width = 6.5, height = 5)
+
+
+```
+
+
+    
+\subsection{Generate figure M4}
+
+```{r}
+
+misspec_d_mean <- misspec_d %>%
+  group_by(pvalue) %>%
+  summarise_all(mean)
+
+
+misspec_d_fig1 <- misspec_d_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw)) 
+
+colnames(misspec_d_fig1) <- c('pvalue', 'beta', 'se')
+misspec_d_fig1$Estimator <- "IVW"
+
+
+misspec_d_egger <- misspec_d_mean %>%
+  select(c(pvalue, beta_egger, se_egger)) 
+colnames(misspec_d_egger) <- c('pvalue', 'beta', 'se')
+misspec_d_egger$Estimator <- "MR Egger"
+
+misspec_d_med <- misspec_d_mean %>%
+  select(c(pvalue, beta_med, se_med)) 
+colnames(misspec_d_med) <- c('pvalue', 'beta', 'se')
+misspec_d_med$Estimator <- "W. Median"
+
+misspec_d_mode <- misspec_d_mean %>%
+  select(c(pvalue, beta_mode, se_mode)) 
+colnames(misspec_d_mode) <- c('pvalue', 'beta', 'se')
+misspec_d_mode$Estimator <- "W. Mode"
+
+misspec_d_mvmr <- misspec_d_mean %>%
+  select(c(pvalue, mvmr.X1_effect, mvmr.X1_se)) 
+colnames(misspec_d_mvmr) <- c('pvalue', 'beta', 'se')
+misspec_d_mvmr$Estimator <- "MVMR"
+
+
+misspec_d_fig1 <- bind_rows(misspec_d_fig1, misspec_d_egger, misspec_d_med, misspec_d_mode, misspec_d_mvmr)
+
+plot1 <- ggplot(misspec_d_fig1, aes(x=log10(pvalue))) +
+  geom_pointrange(aes(y=beta, ymin=(beta - 1.96*se), ymax=(beta + 1.96*se), group=Estimator, colour=Estimator), position=position_dodge(width = 0.5)) +
+  scale_colour_brewer(palette = "Set1") +
+   theme(legend.position = "bottom") +
+  ylim(0,1.2) +
+  labs(x = "Pvalue (log10)", y = "Effect estimate", title ="MR Effect estimates for misspecified model", subtitle = "Causal effect of exposure and X2 on outcome",
+  caption = "SNPs associated with unobserved upstream trait
+       Points futher right represent lower p-value for selection; equivalent to larger sample size
+       P-values; 5e-12, 5e-8, 5e-6, 5e-4") 
+
+plot1
+ggsave("plotmisspec_d.pdf", width = 6.5, height = 5)
 
 
 ```

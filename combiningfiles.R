@@ -49,10 +49,10 @@ res_e <- filter(res, res$model=="E")
 save(res_e, file = "results_confE.Rda")
 
 res_f <- filter(res, res$model=="F")
-save(res_e, file = "results_confF.Rda")
+save(res_f, file = "results_confF.Rda")
 
 res_g <- filter(res, res$model=="G")
-save(res_e, file = "results_confG.Rda")
+save(res_g, file = "results_confG.Rda")
 
 res_h <- filter(res, res$model=="H")
-save(res_e, file = "results_confH.Rda")
+save(res_h, file = "results_confH.Rda")
