@@ -88,6 +88,16 @@ plot1
 ggsave("plotconfA1.pdf", width = 6.5, height = 5)
 
 ```
+Generate results table
+
+```{r}
+
+tablea1 <- resa_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw, beta_egger, se_egger, beta_med, se_med, beta_mode, se_mode, mvmr.X1_effect, mvmr.X1_se)) 
+  
+tablea1$NSNPS <- 200
+
+```
 
 \subsection{Generate figure A.2 - with steiger filtering applied}
 
@@ -128,6 +138,17 @@ plot1 <- ggplot(resa_fig2, aes(x=log10(pvalue))) +
 
 plot1
 ggsave("plotconfA2.pdf")
+
+```
+
+Generate results table
+
+```{r}
+
+tablea1s <- resa_mean %>%
+  select(c(pvalue, beta_ivw.s, se_ivw.s, beta_egger.s, se_egger.s, beta_med.s, se_med.s, beta_mode.s, se_mode.s)) 
+  
+tablea1s$NSNPS <- 200
 
 ```
 \section{Model B}
@@ -214,6 +235,17 @@ ggsave("plotconfB1.pdf")
 
 ```
 
+Generate results table
+
+```{r}
+
+tableb1 <- resb_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw, beta_egger, se_egger, beta_med, se_med, beta_mode, se_mode, mvmr.X1_effect, mvmr.X1_se)) 
+  
+tableb1$NSNPS <- 250
+
+```
+
 
 \subsection{Generate figure B.2 - with steiger filtering applied}
 
@@ -255,6 +287,17 @@ plot1 <- ggplot(resb_fig2, aes(x=log10(pvalue))) +
 
 plot1
 ggsave("plotconfB2.pdf")
+
+```
+
+Generate results table
+
+```{r}
+
+tableb1s <- resb_mean %>%
+  select(c(pvalue, beta_ivw.s, se_ivw.s, beta_egger.s, se_egger.s, beta_med.s, se_med.s, beta_mode.s, se_mode.s)) 
+  
+tableb1s$NSNPS <- 250
 
 ```
 
@@ -328,6 +371,17 @@ ggsave("plotconfC1.pdf")
 
 ```
 
+Generate results table
+
+```{r}
+
+tablec1 <- resc_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw, beta_egger, se_egger, beta_med, se_med, beta_mode, se_mode, mvmr.X1_effect, mvmr.X1_se)) 
+  
+tablec1$NSNPS <- 300
+
+```
+
 
 \subsection{Generate figure C.2}
 
@@ -374,6 +428,17 @@ plot1 <- ggplot(resc_fig2, aes(x=log10(pvalue))) +
 
 plot1
 ggsave("plotconfC2.pdf")
+
+```
+
+Generate results table
+
+```{r}
+
+tablec1s <- resc_mean %>%
+  select(c(pvalue, beta_ivw.s, se_ivw.s, beta_egger.s, se_egger.s, beta_med.s, se_med.s, beta_mode.s, se_mode.s)) 
+  
+tablec1s$NSNPS <- 300
 
 ```
 
@@ -446,6 +511,17 @@ ggsave("plotconfD1.pdf")
 
 ```
 
+Generate results table
+
+```{r}
+
+tabled1 <- resd_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw, beta_egger, se_egger, beta_med, se_med, beta_mode, se_mode, mvmr.X1_effect, mvmr.X1_se)) 
+  
+tabled1$NSNPS <- 350
+
+```
+
 
 \subsection{Generate figure D.2}
 
@@ -487,6 +563,16 @@ plot1 <- ggplot(resd_fig2, aes(x=log10(pvalue))) +
 
 plot1
 ggsave("plotconfD2.pdf")
+
+```
+Generate results table
+
+```{r}
+
+tabled1s <- resd_mean %>%
+  select(c(pvalue, beta_ivw.s, se_ivw.s, beta_egger.s, se_egger.s, beta_med.s, se_med.s, beta_mode.s, se_mode.s)) 
+  
+tabled1s$NSNPS <- 350
 
 ```
 
@@ -561,6 +647,17 @@ ggsave("plotconfE1.pdf", width = 6.5, height = 5)
 
 ```
 
+Generate results table
+
+```{r}
+
+tablee1 <- rese_mean %>%
+  select(c(pvalue, beta_ivw, se_ivw, beta_egger, se_egger, beta_med, se_med, beta_mode, se_mode, mvmr.X1_effect, mvmr.X1_se)) 
+  
+tablee1$NSNPS <- 390
+
+```
+
 \subsection{Generate figure E.2}
 
 ```{r}
@@ -610,6 +707,17 @@ ggsave("plotconfE2.pdf", width = 6.5, height = 5)
 
 ```
 
+Generate results table
+
+```{r}
+
+tablee1s <- rese_mean %>%
+  select(c(pvalue, beta_ivw.s, se_ivw.s, beta_egger.s, se_egger.s, beta_med.s, se_med.s, beta_mode.s, se_mode.s)) 
+  
+tablee1s$NSNPS <- 390
+
+```
+
 Calculating the number of repetitions used for each of the estimators in the plot above
 
 ```{r}
@@ -623,7 +731,7 @@ na08 <- colSums(is.na(subset(res_eforna, pvalue==5e-08)))
 na12 <- colSums(is.na(subset(res_eforna, pvalue==5e-12))) 
 
 
-````
+```
 
 Pvalue 5e-04
 ```{r}
@@ -643,4 +751,13 @@ na12
 ```
 
 
+Combining the tables and outputting them
+
+```{r}
+Table_all <- bind_rows(tablea1, tableb1, tablec1, tabled1, tablee1)
+Table_steiger <- bind_rows(tablea1s, tableb1s, tablec1s, tabled1s, tablee1s)
+
+write.csv(Table_all, "simresults_table.csv")
+write.csv(Table_steiger, "simresults_steiger.csv")
+```
 

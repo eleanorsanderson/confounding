@@ -34,15 +34,15 @@ p1_aam <- mr_scatter_plot(res_aam, dat_aam)
 
 ###MVMR including BMI
 
-id_exposure_aam <- c('ieu-b-4812', 'ieu-b-40')
+id_exposure_aam <- c('ukb-b-3768', 'ukb-b-4650')
 
 id_outcome <- 'finn-b-E4_DM2'
 
 exposure_dat_aam <- mv_extract_exposures(id_exposure_aam)
 outcome_dat_aam <- extract_outcome_data(exposure_dat_aam$SNP, id_outcome)
 mvdat_aam <- mv_harmonise_data(exposure_dat_aam, outcome_dat_aam)
-res_aam <- mv_multiple(mvdat_aam)
-res_aam
+res_aam_mv <- mv_multiple(mvdat_aam)
+res_aam_mv
 
 
 ###filtering to remove SNPs that explain more variation in BMI than the exposure 
@@ -50,7 +50,7 @@ res_aam
 #get a list of snps that explain more variation in bmi than aam 
 bmi_out_dat_aam <- extract_outcome_data(
   snps = aam_exp_dat$SNP,
-  outcomes = 'ieu-b-40'
+  outcomes = 'ukb-b-4650'
 )
 
 dat_aam_bmi <- harmonise_data(
