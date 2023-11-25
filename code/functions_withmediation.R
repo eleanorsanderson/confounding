@@ -6,7 +6,18 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,pi){
   
   G  <- matrix(rbinom(n*nsnps, 2, af), n, nsnps)
   G2 <- matrix(rbinom(n*snpsc, 2, af), n, snpsc)
-  v_x1 <- rnorm(n,0,1)
+  
+  means <- c(0, 0)                                   
+  cov_matrix <- matrix(c(1.5, 0, 0, 1),
+                                     ncol = 2)
+  
+  # create bivariate normal distribution
+  errors <- mvrnorm(n = n,
+                    mu = means, 
+                    Sigma = cov_matrix)
+  
+  v_x1 <- errors[,1]
+  v_y <- errors[,2]
   v_x2 <- rnorm(n,0,1.5)
   v_m <- rnorm(n,0,1.5)
   
@@ -19,8 +30,8 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,pi){
   
   df[,"X2"] <- pi*G2[,]%*%effs_x2 + v_x2
   df[,"M"] <- G[,]%*%effs_x1 + v_m
-  df[,"X1"] <- 0.5*df[,"M"] + 0.5*df[,"X2"] + v_x1
-  df[,"Y"] <- beta1*df[,"X1"] + beta2*df[,"X2"] + rnorm(n,0,1)  
+  df[,"X1"] <- df[,"M"] + df[,"X2"] + v_x1
+  df[,"Y"] <- beta1*df[,"X1"] + beta2*df[,"X2"] + v_y  
   
   data <- cbind.data.frame(df)
   return(data)

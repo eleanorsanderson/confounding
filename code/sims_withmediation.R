@@ -8,6 +8,7 @@
 
 library(dplyr)
 library(tidyverse)
+library(MASS)
 source('functions_withmediation.R')
 source('setupmodels_withmediation.R')
 
@@ -27,8 +28,9 @@ res_wmode.s = data.frame()
 results_all = NULL
 mvmrres <- NULL
 
-for(gm in c(0.5,0.75,1)){
-for(model in c('A', 'B', 'C', 'D')){
+for(gm in c(0.5,1)){
+for(model in c('A', 'B', 'C')){
+  
 params <- setup(model)
 
 snps = params[1]      
@@ -45,7 +47,7 @@ pi = gm
       
       results[1,"model"] <- model
       results[1,"pi"] <- pi
-      results[1,"sample size"] <- nobs
+      results[1,"sample.size"] <- nobs
       
       ####OLS regression of X on Y######
       
@@ -150,7 +152,7 @@ pi = gm
            res_wmode.s[1,"pval_mode.s"] <- res.wmode$pval
            
            results_rep <- bind_cols(results, res_ivw, res_mregger, res_wmedian, res_wmode, mvmrres, 
-                                    res_ivw.s, res_mregger.s, res_wmedian.s, res_wmode.s, .name_repair = "universal")
+                                    res_ivw.s, res_mregger.s, res_wmedian.s, res_wmode.s)
            res_pcut <- rbind(res_pcut, results_rep)
            
       

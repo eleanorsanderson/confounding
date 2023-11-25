@@ -106,8 +106,12 @@ plot1 <- ggplot(plotdat, aes(x=beta.exposure)) +
   geom_point(aes(y=beta.outcome,  group=st, colour=st)) +
   geom_abline(intercept = 0, slope = -0.269) +
   scale_colour_brewer(palette = "Set1") +
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.line = element_line(colour = "black")) +
   theme(legend.position = "bottom") +
-  labs(x = "SNP-exposure association", y = "SNP-outcome association") +
+  labs(x = "SNP-age at menarche association", y = "SNP-T2D association") +
   scale_colour_discrete("Steiger filtered")
 
 ggsave("appliedplot.pdf", width = 6.5, height = 5)
