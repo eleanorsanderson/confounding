@@ -12,7 +12,7 @@ library(MASS)
 source('functions_withmediation.R')
 source('setupmodels_withmediation.R')
 
-reps = 1
+reps = 2
 
 res_pcut = data.frame()
 results = data.frame()
@@ -26,10 +26,11 @@ res_mregger.s = data.frame()
 res_wmedian.s = data.frame()
 res_wmode.s = data.frame()
 results_all = NULL
+results_out = NULL
 mvmrres <- NULL
 
 for(gm in c(0.5,1)){
-for(model in c('A', 'B', 'C')){
+for(model in c('A','B','C')){
   
 params <- setup(model)
 
@@ -157,14 +158,13 @@ pi = gm
            
       
       }
-    }
-  #combine all the results so that the different values of the cut off can be combined into the same dataset.
-
-  results_all <- rbind(results_all, res_pcut)
-  
+    
+      #combine all the results so that the different values of the cut off can be combined into the same dataset.
+      results_all <- rbind(results_all, res_pcut)
     }
 }
+}
 
-results_all
+#results_out <- rbind(results_out, results_all)
 
 #save(results_all, file=sprintf("results_med_%s.Rda", job_id))

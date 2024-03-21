@@ -8,7 +8,7 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,pi){
   G2 <- matrix(rbinom(n*snpsc, 2, af), n, snpsc)
   
   means <- c(0, 0)                                   
-  cov_matrix <- matrix(c(1.5, 0, 0, 1),
+  cov_matrix <- matrix(c(1, 0, 0, 1),
                                      ncol = 2)
   
   # create bivariate normal distribution
@@ -18,8 +18,8 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,pi){
   
   v_x1 <- errors[,1]
   v_y <- errors[,2]
-  v_x2 <- rnorm(n,0,1.5)
-  v_m <- rnorm(n,0,1.5)
+  v_x2 <- rnorm(n,0,1)
+  v_m <- rnorm(n,0,1)
   
   effs_x1 <- abs(rnorm(nsnps,0,0.04))
   effs_x2 <- abs(rnorm(snpsc,0,0.04))
@@ -28,9 +28,9 @@ datagenA <- function(nsnps,snpsc,ss,beta1,beta2,pi){
   df <- df %>% rename_at(vars(starts_with("X")), 
                          funs(str_replace(., "X", "G")))
   
-  df[,"X2"] <- pi*G2[,]%*%effs_x2 + v_x2
+  df[,"X2"] <- G2[,]%*%effs_x2 + v_x2
   df[,"M"] <- G[,]%*%effs_x1 + v_m
-  df[,"X1"] <- df[,"M"] + df[,"X2"] + v_x1
+  df[,"X1"] <- df[,"M"] + pi*df[,"X2"] + v_x1
   df[,"Y"] <- beta1*df[,"X1"] + beta2*df[,"X2"] + v_y  
   
   data <- cbind.data.frame(df)
@@ -378,41 +378,39 @@ MVMR_conf <- function(MR_dat){
   res = data.frame()
   MR_dat$minp <-  apply(MR_dat[,c("X1_p", "X2_p")],1,min)
   MVMR_dat <- MR_dat[MR_dat$minp < pcut,]
-
-  mvmr_out <- summary(lm(Y_b~-1+X1_b+X2_b,weights=1/(Y_se^2), data = MVMR_dat))
-
-  res[1,"mvmr.X1_effect"] <- mvmr_out$coefficients["X1_b","Estimate"]
-  res["mvmr.X1_se"] <- mvmr_out$coefficients["X1_b","Std. Error"]
-  res["mvmr.X2_effect"] <-mvmr_out$coefficients["X2_b","Estimate"]
-  res["mvmr.X2_se"] <- mvmr_out$coefficients["X2_b","Std. Error"]
-  res["mvmr.nsnps"] <- length(MVMR_dat$X1_b)
-
-  rho = cor(dat$X1,dat$X2)
-  sig12 = as.vector(rho)*MVMR_dat$X1_se*MVMR_dat$X2_se
-
-  delta1 <- lm(X1_b~ -1 + X2_b,data = MVMR_dat)$coefficients["X2_b"]
-  delta2 <- lm(X2_b~ -1 + X1_b,data = MVMR_dat)$coefficients["X1_b"]
  
-  Qind_1 <- ((MVMR_dat$X1_b - delta1*MVMR_dat$X2_b)^2)/(MVMR_dat$X1_se^2 + (delta1^2)*MVMR_dat$X2_se^2 - 2*delta1*sig12)
-  Qind_2 <- ((MVMR_dat$X2_b - delta2*MVMR_dat$X1_b)^2)/(MVMR_dat$X2_se^2 + (delta2^2)*MVMR_dat$X1_se^2 - 2*delta2*sig12)
+  if(length(MVMR_dat$X1_b)>1){
+      mvmr_out <- summary(lm(Y_b~-1+X1_b+X2_b,weights=1/(Y_se^2), data = MVMR_dat))
 
-  res["Cond_F.X1"] <- mean(Qind_1)
-  res["Cond_F.X2"] <- mean(Qind_2)
+      res[1,"mvmr.X1_effect"] <- mvmr_out$coefficients["X1_b","Estimate"]
+      res["mvmr.X1_se"] <- mvmr_out$coefficients["X1_b","Std. Error"]
+      res["mvmr.X2_effect"] <-mvmr_out$coefficients["X2_b","Estimate"]
+      res["mvmr.X2_se"] <- mvmr_out$coefficients["X2_b","Std. Error"]
+      res["mvmr.nsnps"] <- length(MVMR_dat$X1_b)
 
- 
-# ##MVMR instrument strength testing
-# 
-  rho = cor(dat$X1,dat$X2)
-  sig12 = as.vector(rho)*MR_dat.X$X1_se*MR_dat.X$X2_se
+      rho = cor(dat$X1,dat$X2)
+      sig12 = as.vector(rho)*MVMR_dat$X1_se*MVMR_dat$X2_se
 
-  delta1 <- lm(X1_b~ -1 + X2_b,data = MR_dat.X)$coefficients["X2_b"]
-  delta2 <- lm(X2_b~ -1 + X1_b,data = MR_dat.X)$coefficients["X1_b"]
+      delta1 <- lm(X1_b~ -1 + X2_b,data = MVMR_dat)$coefficients["X2_b"]
+      delta2 <- lm(X2_b~ -1 + X1_b,data = MVMR_dat)$coefficients["X1_b"]
  
-  Qind_1 <- ((MR_dat.X$X1_b - delta1*MR_dat.X$X2_b)^2)/(MR_dat.X$X1_se^2 + (delta1^2)*MR_dat.X$X2_se^2 - 2*delta1*sig12)
-  Qind_2 <- ((MR_dat.X$X2_b - delta2*MR_dat.X$X1_b)^2)/(MR_dat.X$X2_se^2 + (delta2^2)*MR_dat.X$X1_se^2 - 2*delta2*sig12)
- 
-  res["CF.X1_uniS"] <- mean(Qind_1)
-  res["CF.X2_uniS"] <- mean(Qind_2)
+      Qind_1 <- ((MVMR_dat$X1_b - delta1*MVMR_dat$X2_b)^2)/(MVMR_dat$X1_se^2 + (delta1^2)*MVMR_dat$X2_se^2 - 2*delta1*sig12)
+      Qind_2 <- ((MVMR_dat$X2_b - delta2*MVMR_dat$X1_b)^2)/(MVMR_dat$X2_se^2 + (delta2^2)*MVMR_dat$X1_se^2 - 2*delta2*sig12)
+
+      res["Cond_F.X1"] <- mean(Qind_1)
+      res["Cond_F.X2"] <- mean(Qind_2)
+  
+      } else{
+            res[1,"mvmr.X1_effect"] <- "NA"
+            res["mvmr.X1_se"] <- "NA"
+            res["mvmr.X2_effect"] <-"NA"
+            res["mvmr.X2_se"] <- "NA"
+            res["mvmr.nsnps"] <- length(MVMR_dat$X1_b)
+    
+            res["Cond_F.X1"] <- "NA"
+            res["Cond_F.X2"] <- "NA"
+    
+            }
   
   return(res)
 
