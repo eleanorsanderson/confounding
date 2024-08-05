@@ -105,6 +105,7 @@ plotdat <- dat_aam %>%
 plot1 <- ggplot(plotdat, aes(x=beta.exposure)) +
   geom_point(aes(y=beta.outcome,  group=st, colour=st)) +
   geom_abline(intercept = 0, slope = -0.269) +
+  geom_abline(intercept = 0, slope = -0.1) +
   scale_colour_brewer(palette = "Set1") +
   theme(panel.background = element_rect(fill = "white"),
         panel.grid = element_line(color = "black")) +

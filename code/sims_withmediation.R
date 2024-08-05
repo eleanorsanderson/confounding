@@ -30,7 +30,7 @@ results_out = NULL
 mvmrres <- NULL
 
 for(gm in c(0.5,1)){
-for(model in c('A','B','C')){
+for(model in c('A', 'B', 'C')){
   
 params <- setup(model)
 
