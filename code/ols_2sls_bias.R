@@ -22,9 +22,10 @@ beta_ux = 0.5
 
 #data set up
 n_IVs <- 1
-pi_zx <- 0.25
+p <- 0.25
 
-for(p in seq(0, 0.5, 0.025)){
+for(pi_zx in c(0, 0.25)){
+  for(beta_uy in seq(0, 0.5, 0.05)){
 
     for(i in 1:reps){
     results[i, "pi_zu"] <- p
@@ -71,7 +72,7 @@ for(p in seq(0, 0.5, 0.025)){
     }
   results_all <- rbind(results_all, results)
 }
-
+}
 
 results_all[,"bias_ols"] <- results_all[,"beta_uy"]*results_all[,"beta_ux"]
 results_all[,"bias_iv"] <- (results_all[,"beta_uy"]*results_all[,"pi_zu"])/(results_all[,"pi_zx"] + results_all[,"beta_ux"]*results_all[,"pi_zu"])

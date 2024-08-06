@@ -48,8 +48,8 @@ modelC_0.75 <- subset.data.frame(modelC, modelC$pi == 0.75)
 modelC_1 <- subset.data.frame(modelC, modelC$pi == 1)
 
 
-plotcolours <-  c("Obs" = "red3", "IVW" = "blue3", "MR Egger" = "green4", "W. Median" = "darkorchid", "W. Mode" = "darkorange", "MVMR" = "darkgoldenrod1")
-desired_order <- c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR")
+plotcolours <-  c("Linear Regression" = "red3", "IVW" = "blue3", "MR Egger" = "green4", "W. Median" = "darkorchid", "W. Mode" = "darkorange", "MVMR" = "darkgoldenrod1")
+desired_order <- c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR")
 ```
 
 \section{Simulation results for where confounder is less strongly predicted than exposure}
@@ -67,7 +67,7 @@ resa_mean <- modelA_0.5 %>%
 resa_fig1 <- resa_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resa_fig1) <- c('pvalue',  'beta', 'se')
-resa_fig1$Estimator <- "Obs"
+resa_fig1$Estimator <- "Linear Regression"
 
 
 resa_ivw <- resa_mean %>%
@@ -131,7 +131,7 @@ tablea1$NSNPS <- 200
 resa_fig2 <- resa_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resa_fig2) <- c('pvalue',  'beta', 'se')
-resa_fig2$Estimator <- "Obs"
+resa_fig2$Estimator <- "Linear Regression"
 
 
 
@@ -205,7 +205,7 @@ resb_fig1 <- resb_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 
 colnames(resb_fig1) <- c('pvalue', 'beta', 'se')
-resb_fig1$Estimator <- "Obs"
+resb_fig1$Estimator <- "Linear Regression"
 
 
 resb_ivw <- resb_mean %>%
@@ -236,7 +236,7 @@ resb_mvmr$Estimator <- "MVMR"
 
 resb_fig1 <- bind_rows(resb_fig1, resb_ivw, resb_egger, resb_med, resb_mode, resb_mvmr)
 resb_fig1$Estimator <- as.factor(resb_fig1$Estimator)
-resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resb_fig1$Steiger <- "No"
 resb_fig1$PropC <- "75%"
 
@@ -271,7 +271,7 @@ tableb1$NSNPS <- 300
 resb_fig2 <- resb_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resb_fig2) <- c('pvalue', 'beta', 'se')
-resb_fig2$Estimator <- "Obs"
+resb_fig2$Estimator <- "Linear Regression"
 
 resb_ivw <- resb_mean %>%
   select(c(pvalue, beta_ivw.s, se_ivw.s)) 
@@ -337,7 +337,7 @@ resc_mean <- modelC_0.5 %>%
 resc_fig1 <- resc_mean %>%
   select(c(pvalue, ols_b, ols_b)) 
 colnames(resc_fig1) <- c('pvalue', 'beta', 'se')
-resc_fig1$Estimator <- "Obs"
+resc_fig1$Estimator <- "Linear Regression"
 
 resc_ivw <- resc_mean %>%
   select(c(pvalue, beta_ivw, se_ivw)) 
@@ -367,7 +367,7 @@ resc_mvmr$Estimator <- "MVMR"
 
 resc_fig1 <- bind_rows(resc_fig1, resc_ivw, resc_egger, resc_med, resc_mode, resc_mvmr)
 resc_fig1$Estimator <- as.factor(resc_fig1$Estimator)
-resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resc_fig1$Steiger <- "No"
 resc_fig1$PropC <- "87.5%"
 
@@ -401,7 +401,7 @@ tablec1$NSNPS <- 350
 resc_fig2 <- resc_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resc_fig2) <- c('pvalue', 'beta', 'se')
-resc_fig2$Estimator <- "Obs"
+resc_fig2$Estimator <- "Linear Regression"
 
 resc_ivw <- resc_mean %>%
   select(c(pvalue, beta_ivw.s, se_ivw.s)) 
@@ -426,7 +426,7 @@ resc_mode$Estimator <- "W. Mode"
 
 resc_fig2 <- bind_rows(resc_fig2, resc_ivw, resc_egger, resc_med, resc_mode)
 resc_fig2$Estimator <- as.factor(resc_fig2$Estimator)
-resc_fig2$Estimator <- factor(resc_fig2$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode"))
+resc_fig2$Estimator <- factor(resc_fig2$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode"))
 resc_fig2$Steiger <- "Yes"
 resc_fig2$PropC <- "87.5%"
 
@@ -525,7 +525,7 @@ resa_mean <- modelA_0.75 %>%
 resa_fig1 <- resa_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resa_fig1) <- c('pvalue',  'beta', 'se')
-resa_fig1$Estimator <- "Obs"
+resa_fig1$Estimator <- "Linear Regression"
 
 
 resa_ivw <- resa_mean %>%
@@ -557,7 +557,7 @@ resa_mvmr$Estimator <- "MVMR"
 
 resa_fig1 <- bind_rows(resa_fig1, resa_ivw, resa_egger, resa_med, resa_mode, resa_mvmr)
 resa_fig1$Estimator <- as.factor(resa_fig1$Estimator)
-resa_fig1$Estimator <- factor(resa_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resa_fig1$Estimator <- factor(resa_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resa_fig1$Steiger <- "No"
 resa_fig1$PropC <- "50%"
 
@@ -589,7 +589,7 @@ tablea1$NSNPS <- 200
 resa_fig2 <- resa_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resa_fig2) <- c('pvalue',  'beta', 'se')
-resa_fig2$Estimator <- "Obs"
+resa_fig2$Estimator <- "Linear Regression"
 
 
 
@@ -661,7 +661,7 @@ resb_fig1 <- resb_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 
 colnames(resb_fig1) <- c('pvalue', 'beta', 'se')
-resb_fig1$Estimator <- "Obs"
+resb_fig1$Estimator <- "Linear Regression"
 
 
 resb_ivw <- resb_mean %>%
@@ -692,7 +692,7 @@ resb_mvmr$Estimator <- "MVMR"
 
 resb_fig1 <- bind_rows(resb_fig1, resb_ivw, resb_egger, resb_med, resb_mode, resb_mvmr)
 resb_fig1$Estimator <- as.factor(resb_fig1$Estimator)
-resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resb_fig1$Steiger <- "No"
 resb_fig1$PropC <- "75%"
 
@@ -726,7 +726,7 @@ tableb1$NSNPS <- 300
 resb_fig2 <- resb_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resb_fig2) <- c('pvalue', 'beta', 'se')
-resb_fig2$Estimator <- "Obs"
+resb_fig2$Estimator <- "Linear Regression"
 
 resb_ivw <- resb_mean %>%
   select(c(pvalue, beta_ivw.s, se_ivw.s)) 
@@ -792,7 +792,7 @@ resc_mean <- modelC_0.75 %>%
 resc_fig1 <- resc_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resc_fig1) <- c('pvalue', 'beta', 'se')
-resc_fig1$Estimator <- "Obs"
+resc_fig1$Estimator <- "Linear Regression"
 
 resc_ivw <- resc_mean %>%
   select(c(pvalue, beta_ivw, se_ivw)) 
@@ -822,7 +822,7 @@ resc_mvmr$Estimator <- "MVMR"
 
 resc_fig1 <- bind_rows(resc_fig1, resc_ivw, resc_egger, resc_med, resc_mode, resc_mvmr)
 resc_fig1$Estimator <- as.factor(resc_fig1$Estimator)
-resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resc_fig1$Steiger <- "No"
 resc_fig1$PropC <- "87.5%"
 
@@ -856,7 +856,7 @@ tablec1$NSNPS <- 350
 resc_fig2 <- resc_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resc_fig2) <- c('pvalue', 'beta', 'se')
-resc_fig2$Estimator <- "Obs"
+resc_fig2$Estimator <- "Linear Regression"
 
 resc_ivw <- resc_mean %>%
   select(c(pvalue, beta_ivw.s, se_ivw.s)) 
@@ -881,7 +881,7 @@ resc_mode$Estimator <- "W. Mode"
 
 resc_fig2 <- bind_rows(resc_fig2, resc_ivw, resc_egger, resc_med, resc_mode)
 resc_fig2$Estimator <- as.factor(resc_fig2$Estimator)
-resc_fig2$Estimator <- factor(resc_fig2$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode"))
+resc_fig2$Estimator <- factor(resc_fig2$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode"))
 resc_fig2$Steiger <- "Yes"
 resc_fig2$PropC <- "87.5%"
 
@@ -989,7 +989,7 @@ resa_mean <- modelA_1 %>%
 resa_fig1 <- resa_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resa_fig1) <- c('pvalue',  'beta', 'se')
-resa_fig1$Estimator <- "Obs"
+resa_fig1$Estimator <- "Linear Regression"
 
 
 resa_ivw <- resa_mean %>%
@@ -1021,7 +1021,7 @@ resa_mvmr$Estimator <- "MVMR"
 
 resa_fig1 <- bind_rows(resa_fig1, resa_ivw, resa_egger, resa_med, resa_mode, resa_mvmr)
 resa_fig1$Estimator <- as.factor(resa_fig1$Estimator)
-resa_fig1$Estimator <- factor(resa_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resa_fig1$Estimator <- factor(resa_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resa_fig1$Steiger <- "No"
 resa_fig1$PropC <- "50%"
 
@@ -1053,7 +1053,7 @@ tablea1$NSNPS <- 200
 resa_fig2 <- resa_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resa_fig2) <- c('pvalue',  'beta', 'se')
-resa_fig2$Estimator <- "Obs"
+resa_fig2$Estimator <- "Linear Regression"
 
 
 
@@ -1126,7 +1126,7 @@ resb_fig1 <- resb_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 
 colnames(resb_fig1) <- c('pvalue', 'beta', 'se')
-resb_fig1$Estimator <- "Obs"
+resb_fig1$Estimator <- "Linear Regression"
 
 
 resb_ivw <- resb_mean %>%
@@ -1157,7 +1157,7 @@ resb_mvmr$Estimator <- "MVMR"
 
 resb_fig1 <- bind_rows(resb_fig1, resb_ivw, resb_egger, resb_med, resb_mode, resb_mvmr)
 resb_fig1$Estimator <- as.factor(resb_fig1$Estimator)
-resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resb_fig1$Estimator <- factor(resb_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resb_fig1$Steiger <- "No"
 resb_fig1$PropC <- "75%"
 
@@ -1192,7 +1192,7 @@ tableb1$NSNPS <- 300
 resb_fig2 <- resb_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resb_fig2) <- c('pvalue', 'beta', 'se')
-resb_fig2$Estimator <- "Obs"
+resb_fig2$Estimator <- "Linear Regression"
 
 resb_ivw <- resb_mean %>%
   select(c(pvalue, beta_ivw.s, se_ivw.s)) 
@@ -1259,7 +1259,7 @@ resc_mean <- modelC_1 %>%
 resc_fig1 <- resc_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resc_fig1) <- c('pvalue', 'beta', 'se')
-resc_fig1$Estimator <- "Obs"
+resc_fig1$Estimator <- "Linear Regression"
 
 resc_ivw <- resc_mean %>%
   select(c(pvalue, beta_ivw, se_ivw)) 
@@ -1289,7 +1289,7 @@ resc_mvmr$Estimator <- "MVMR"
 
 resc_fig1 <- bind_rows(resc_fig1, resc_ivw, resc_egger, resc_med, resc_mode, resc_mvmr)
 resc_fig1$Estimator <- as.factor(resc_fig1$Estimator)
-resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
+resc_fig1$Estimator <- factor(resc_fig1$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode", "MVMR"))
 resc_fig1$Steiger <- "No"
 resc_fig1$PropC <- "87.5%"
 
@@ -1324,7 +1324,7 @@ tablec1$NSNPS <- 350
 resc_fig2 <- resc_mean %>%
   select(c(pvalue, ols_b, ols_se)) 
 colnames(resc_fig2) <- c('pvalue', 'beta', 'se')
-resc_fig2$Estimator <- "Obs"
+resc_fig2$Estimator <- "Linear Regression"
 
 resc_ivw <- resc_mean %>%
   select(c(pvalue, beta_ivw.s, se_ivw.s)) 
@@ -1349,7 +1349,7 @@ resc_mode$Estimator <- "W. Mode"
 
 resc_fig2 <- bind_rows(resc_fig2, resc_ivw, resc_egger, resc_med, resc_mode)
 resc_fig2$Estimator <- as.factor(resc_fig2$Estimator)
-resc_fig2$Estimator <- factor(resc_fig2$Estimator, levels = c("Obs", "IVW", "MR Egger", "W. Median", "W. Mode"))
+resc_fig2$Estimator <- factor(resc_fig2$Estimator, levels = c("Linear Regression", "IVW", "MR Egger", "W. Median", "W. Mode"))
 resc_fig2$Steiger <- "Yes"
 resc_fig2$PropC <- "87.5%"
 

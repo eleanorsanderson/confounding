@@ -13,20 +13,67 @@ library(ggplot2)
 
 load("relativebias_sim_results.rda")
 
-graph_res <- results_all %>% 
-  group_by(bias_iv) %>% 
+
+#graph 1
+results <- results_all %>% 
+  filter(pi_zx == 0)
+
+graph_res1 <- results %>% 
+  group_by(beta_uy) %>% 
   summarise(across(c(wald, tsls_b, ols_b), mean))
 
 graph_res$ols_bias <- graph_res$ols_b - 0.4
 graph_res$tsls_bias <- graph_res$tsls_b - 0.4
 graph_res$wald_bias <- graph_res$wald - 0.4
 
-ggplot(data = graph_res, aes(x=bias_iv)) +
+ggplot(data = graph_res, aes(x=beta_uy)) +
   geom_line(aes(y = ols_bias, colour="Linear regression")) +
   geom_line(aes(y = tsls_bias, colour="IV")) +
   scale_color_brewer(palette="Set1") +
   labs(x = "Relative pleiotropic effect", y = "Bias", colour="Estimator") +
+  ggtitle("No direct effect of instrument on exposure") +
   theme_bw() +
   theme(legend.position = "bottom")
 
 
+# graph 2
+
+results <- results_all %>% 
+  filter(pi_zx == 0.25)
+
+graph_res2 <- results %>% 
+  group_by(beta_uy) %>% 
+  summarise(across(c(wald, tsls_b, ols_b), mean))
+
+graph_res$ols_bias <- graph_res$ols_b - 0.4
+graph_res$tsls_bias <- graph_res$tsls_b - 0.4
+graph_res$wald_bias <- graph_res$wald - 0.4
+
+ggplot(data = graph_res, aes(x=beta_uy)) +
+  geom_line(aes(y = ols_bias, colour="Linear regression")) +
+  geom_line(aes(y = tsls_bias, colour="IV")) +
+  scale_color_brewer(palette="Set1") +
+  ylim(0,1) +
+  labs(x = "Relative pleiotropic effect", y = "Bias", colour="Estimator") +
+  ggtitle("Equal effect of instrument on exposure and confounder") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+#combined graph
+
+graph_res1$tsls_no <- graph_res1$tsls_b
+comb_res <- graph_res1[, c("beta_uy", "tsls_no")]
+comb_res <- full_join(comb_res, graph_res2, by="beta_uy")
+comb_res$ols_bias <- comb_res$ols_b - 0.4
+comb_res$tsls_bias <- comb_res$tsls_b - 0.4
+comb_res$tsls_no_bias <- comb_res$tsls_no - 0.4
+
+
+ggplot(data = comb_res, aes(x=beta_uy)) +
+  geom_line(aes(y = ols_bias, colour="Linear regression")) +
+  geom_line(aes(y = tsls_bias, colour="IV (direct effect)")) +
+  geom_line(aes(y = tsls_no_bias, colour="IV (no direct effect)")) +
+  scale_color_brewer(palette="Set1") +
+  labs(x = "Effect of confounder on outcome", y = "Bias", colour="Estimator") +
+  theme_bw() +
+  theme(legend.position = "bottom")
