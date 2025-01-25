@@ -22,18 +22,9 @@ graph_res1 <- results %>%
   group_by(beta_uy) %>% 
   summarise(across(c(wald, tsls_b, ols_b), mean))
 
-graph_res$ols_bias <- graph_res$ols_b - 0.4
-graph_res$tsls_bias <- graph_res$tsls_b - 0.4
-graph_res$wald_bias <- graph_res$wald - 0.4
-
-ggplot(data = graph_res, aes(x=beta_uy)) +
-  geom_line(aes(y = ols_bias, colour="Linear regression")) +
-  geom_line(aes(y = tsls_bias, colour="IV")) +
-  scale_color_brewer(palette="Set1") +
-  labs(x = "Relative pleiotropic effect", y = "Bias", colour="Estimator") +
-  ggtitle("No direct effect of instrument on exposure") +
-  theme_bw() +
-  theme(legend.position = "bottom")
+graph_res1$ols_bias <- graph_res1$ols_b - 0.4
+graph_res1$tsls_bias <- graph_res1$tsls_b - 0.4
+graph_res1$wald_bias <- graph_res1$wald - 0.4
 
 
 # graph 2
@@ -45,19 +36,10 @@ graph_res2 <- results %>%
   group_by(beta_uy) %>% 
   summarise(across(c(wald, tsls_b, ols_b), mean))
 
-graph_res$ols_bias <- graph_res$ols_b - 0.4
-graph_res$tsls_bias <- graph_res$tsls_b - 0.4
-graph_res$wald_bias <- graph_res$wald - 0.4
+graph_res2$ols_bias <- graph_res2$ols_b - 0.4
+graph_res2$tsls_bias <- graph_res2$tsls_b - 0.4
+graph_res2$wald_bias <- graph_res2$wald - 0.4
 
-ggplot(data = graph_res, aes(x=beta_uy)) +
-  geom_line(aes(y = ols_bias, colour="Linear regression")) +
-  geom_line(aes(y = tsls_bias, colour="IV")) +
-  scale_color_brewer(palette="Set1") +
-  ylim(0,1) +
-  labs(x = "Relative pleiotropic effect", y = "Bias", colour="Estimator") +
-  ggtitle("Equal effect of instrument on exposure and confounder") +
-  theme_bw() +
-  theme(legend.position = "bottom")
 
 #combined graph
 
